@@ -13,11 +13,14 @@ def verify_bridge_chain(
     """Verify the full cryptographic chain from attestation to agent action.
 
     Checks:
-    1. Agent action signature is valid
+    1. Agent action signature is valid (covers all action fields including outcome)
     2. Source attestation signature is valid
     3. Agent pubkey matches attestation oracle
-    4. Action params contain matching attestation_sig
-    5. Action outcome derives from attestation output
+    4. Action params contain matching attestation_sig (provenance link)
+
+    Note: outcome integrity is guaranteed transitively by check #1 — the BIP-340
+    signature over the action covers the outcome field, so any tampering would
+    invalidate the action signature.
     """
     if not signed_action.verify():
         return False

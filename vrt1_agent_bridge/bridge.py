@@ -73,9 +73,16 @@ def import_batch(
     """Import multiple attestations in batch.
 
     All attestations must be from the same oracle (matching key).
+    Raises ValueError upfront if any attestation's oracle doesn't match.
     """
     if not attestations:
         raise ValueError("cannot import empty attestation list")
+    expected = key.xonly_pubkey_hex
+    mismatches = [i for i, a in enumerate(attestations) if a.attestation.oracle != expected]
+    if mismatches:
+        raise ValueError(
+            f"attestation(s) at index {mismatches} do not match key oracle"
+        )
     return [
         import_attestation(att, key, verify_source=verify_source)
         for att in attestations

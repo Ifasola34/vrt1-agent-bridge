@@ -55,3 +55,8 @@ class TestWrapAsEvent:
         assert recovered.id == imported.signed_action.id
         assert recovered.action.action_type == "infer"
         assert recovered.verify()
+
+    def test_wrong_key_raises(self, sample_attestation, oracle_key, other_key):
+        imported = import_attestation(sample_attestation, oracle_key)
+        with pytest.raises(ValueError):
+            wrap_as_event(imported, other_key)

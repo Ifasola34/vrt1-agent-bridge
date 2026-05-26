@@ -143,3 +143,34 @@ class TestImportBatch:
         results = import_batch(sample_attestations, oracle_key)
         for r in results:
             assert r.signed_action.action.action_type == "infer"
+
+    def test_mixed_oracle_raises_upfront(self, oracle_key, other_key):
+        from veritas.attestation import make_attestation, sign_attestation
+
+        att1 = sign_attestation(
+            make_attestation(model="t.v1", input_hash="aa" * 32, output={"x": 1},
+                            epoch=1, oracle_pubkey_hex=oracle_key.xonly_pubkey_hex, ts=1700000000),
+            oracle_key,
+        )
+        att2 = sign_attestation(
+            make_attestation(model="t.v1", input_hash="bb" * 32, output={"x": 2},
+                            epoch=2, oracle_pubkey_hex=other_key.xonly_pubkey_hex, ts=1700000001),
+            other_key,
+        )
+        with pytest.raises(ValueError, match="do not match key oracle"):
+            import_batch([att1, att2], oracle_key)
+
+    def test_none_output_wraps_correctly(self, oracle_key):
+        from veritas.attestation import make_attestation, sign_attestation, Attestation
+        att = Attestation(
+            model="test.v1",
+            input_hash="ff" * 32,
+            output=42,
+            ts=1700000000,
+            epoch=1,
+            oracle=oracle_key.xonly_pubkey_hex,
+            v=1,
+        )
+        signed = sign_attestation(att, oracle_key)
+        result = import_attestation(signed, oracle_key)
+        assert result.signed_action.action.outcome == {"output": 42}
