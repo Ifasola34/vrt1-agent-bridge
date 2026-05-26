@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ["verify_bridge_chain"]
+
 from veritas.attestation import SignedAttestation
 from vrt1_agents.action import SignedAction
 

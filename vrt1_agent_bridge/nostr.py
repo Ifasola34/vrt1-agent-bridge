@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ["wrap_as_event"]
+
 from veritas.crypto import OracleKey
 from vrt1_agents.action import SignedAction
 from vrt1_agents.nostr import NostrEvent, build_action_event

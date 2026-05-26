@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ["AttestationImport", "import_attestation", "import_batch"]
+
 from dataclasses import dataclass
 
 from veritas.attestation import SignedAttestation

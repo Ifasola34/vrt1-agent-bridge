@@ -68,3 +68,22 @@ class TestVerifyBridgeChain:
         )
         other_signed = sign_attestation(other_att, oracle_key)
         assert not verify_bridge_chain(imported.signed_action, other_signed)
+
+    def test_empty_params_action_fails(self, sample_attestation, oracle_key):
+        """Action with no attestation_sig in params must fail verification."""
+        from vrt1_agents.action import AgentAction, SignedAction, sign_action, make_action
+        action = make_action(
+            agent_pubkey_hex=oracle_key.xonly_pubkey_hex,
+            action_type="infer",
+            target="test.v1",
+            params={},
+            outcome={"x": 1},
+            ts=1700000000,
+        )
+        signed = sign_action(action, oracle_key)
+        assert not verify_bridge_chain(signed, sample_attestation)
+
+    def test_top_level_import(self):
+        """verify_bridge_chain is importable from package root."""
+        from vrt1_agent_bridge import verify_bridge_chain as vbc
+        assert callable(vbc)
